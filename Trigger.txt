@@ -1,0 +1,31 @@
+
+
+CREATE TABLE IF NOT EXISTS log_auditoria(
+  Fecha date NOT NULL,
+  Usuario varchar(100) NOT NULL,
+  Factura varchar(15) NOT NULL,
+  Lineas integer DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+
+-- TRIGGER PARA INSERT 
+DELIMITER // 
+CREATE TRIGGER FACTURA_BI_TR 
+BEFORE INSERT ON FACTURA
+FOR EACH ROW 
+BEGIN 
+	DECLARE cantidad_filas INT; 
+	
+	SELECT COUNT(*) 
+	INTO cantidad_filas 
+	FROM DETALLE_FACTURA 
+	WHERE COD_FACTURA=NEW.NNM_FACTURA; 
+	 
+	INSERT INTO log_auditoria 
+	(Fecha,Usuario,Factura,Lineas) 
+	VALUES(Now(),Current_User(),NEW.NNM_FACTURA,cantidad_filas); 
+ 
+END// 
+
+
+DELIMITER;
